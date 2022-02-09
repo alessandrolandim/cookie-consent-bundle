@@ -56,6 +56,9 @@ class Configuration implements ConfigurationInterface
                 ->booleanNode('csrf_protection')
                     ->defaultTrue()
                 ->end()
+                ->booleanNode('default_option')
+                    ->defaultTrue()
+                ->end()
             ->end()
         ;
 

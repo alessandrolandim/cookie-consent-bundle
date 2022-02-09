@@ -34,6 +34,11 @@ class CookieConsentType extends AbstractType
      * @var bool
      */
     protected $cookieConsentSimplified;
+    /**
+     * @var bool
+     */
+
+    protected $defaultOption;
 
     /**
      * @var bool
@@ -44,12 +49,14 @@ class CookieConsentType extends AbstractType
         CookieChecker $cookieChecker,
         array $cookieCategories,
         bool $cookieConsentSimplified = false,
-        bool $csrfProtection = true
+        bool $csrfProtection = true,
+        bool $defaultOption = true
     ) {
         $this->cookieChecker           = $cookieChecker;
         $this->cookieCategories        = $cookieCategories;
         $this->cookieConsentSimplified = $cookieConsentSimplified;
         $this->csrfProtection          = $csrfProtection;
+        $this->defaultOption          = $defaultOption;
     }
 
     /**
@@ -58,10 +65,19 @@ class CookieConsentType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         foreach ($this->cookieCategories as $category) {
+
+            $data = $this->defaultOption; 
+            if($this->cookieChecker->isCookieConsentSavedByUser() && $this->cookieChecker->isCategoryAllowedByUser($category)) {
+                $data = true;
+            }
+            if($this->cookieChecker->isCookieConsentSavedByUser() && !$this->cookieChecker->isCategoryAllowedByUser($category)) {
+                $data = false;
+            }
+
             $builder->add($category, ChoiceType::class, [
                 'expanded' => true,
                 'multiple' => false,
-                'data'     => $this->cookieChecker->isCategoryAllowedByUser($category) ? 'true' : 'false',
+                'data'     => $data ? 'true' : 'false',
                 'choices'  => [
                     ['ch_cookie_consent.yes' => 'true'],
                     ['ch_cookie_consent.no' => 'false'],
